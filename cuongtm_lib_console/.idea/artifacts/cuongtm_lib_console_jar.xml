@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="cuongtm_lib_console:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/cuongtm_lib_console_jar</output-path>
+    <root id="archive" name="cuongtm_lib_console.jar">
+      <element id="module-output" name="cuongtm_lib_console" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/commons/commons-lang3/3.0/commons-lang3-3.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
