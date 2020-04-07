@@ -1,11 +1,11 @@
 package com.cuongtm.utils;
 
 public class Constant {
-    public static final String MENU_TABLE_BOUND = "+===============================================================================================================+\n";
-    public static final String MENU_FUNCTION_BOUND = "+=====+=========================================================================================================+\n";
+    public static final String MENU_TABLE_BOUND = "+=========================================================================================================================+\n";
+    public static final String MENU_FUNCTION_BOUND = "+===========+=============================================================================================================+\n";
 
-    public static final String DATATABLE_FIELD_BOUND = "+==============================";
-    public static final String DATATABLE_ID_BOUND = "+==========";
+    public static final String DATATABLE_FIELD_BOUND = "+===============================";
+    public static final String DATATABLE_ID_BOUND = "+===========";
 
     public static final String END_TABLE_LINE = "+\n";
     public static final String END_ROW_DATA = "|\n";
@@ -16,14 +16,22 @@ public class Constant {
     public static final String NULL_DATATABLE_INFO = "DANH SÁCH KHÔNG CÓ DỮ LIỆU";
     public static final String ROW_COUNT = "TỔNG SỐ BẢN GHI : [%s]";
 
-    public static final String ALIGN_FORMAT = "|%-5s| %-104s|%n";
+    public static final String ALIGN_FORMAT = "|%-5s| %-108s|%n";
     public static final String SPACE = " ";
 
-    public static final Integer SIZE_MENU_ID = 5;
-    public static final Integer SIZE_MENU_FUNCTION = 111;
-    public static final Integer SIZE_DATATABLE_ID = 10;
-    public static final Integer SIZE_DATATABLE_ROW = 30;
+    public static final Integer SIZE_MENU_ID = 11;
+    public static final Integer SIZE_MENU_FUNCTION = 121;
+    public static final Integer SIZE_DATATABLE_ID = 11;
+    public static final Integer SIZE_DATATABLE_ROW = 31;
 
+    public static final Integer FIRST_ELEMENT = 0;
+
+    public static final String FUNC_INSERT = "Add %s";
+    public static final String FUNC_EDIT = "Edit %s By ID";
+    public static final String FUNC_DELETE = "Delete %s By ID";
+    public static final String FUNC_SEARCH = "Search %s By ID";
+    public static final String FUNC_SHOW = "Show List %s";
+    public static final String FUNC_EXIT = "Exit Program";
 
     public static class Color {
         // Reset

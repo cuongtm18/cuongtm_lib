@@ -6,21 +6,43 @@ import com.cuongtm.utils.PrintWithColor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 public class BaseController<T> {
 
-    protected static StringBuilder datatableString = null;
+    private T object;
 
-    protected static void tableOfMenu(String header, List<String> menuName) {
+    protected static StringBuilder datatableString = null;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
+    private String getGenericName() {
+        String name = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0].toString();
+        name = name.replace("class ", "");
+        int indexOfLastDot = name.lastIndexOf('.');
+        name = name.substring(indexOfLastDot + 1);
+        return name;
+    }
+
+    private List<String> listMenu = new ArrayList<>(Arrays.asList(
+            String.format(Constant.FUNC_INSERT, getGenericName()),
+            String.format(Constant.FUNC_EDIT, getGenericName()),
+            String.format(Constant.FUNC_DELETE, getGenericName()),
+            String.format(Constant.FUNC_SEARCH, getGenericName()),
+            String.format(Constant.FUNC_SHOW, getGenericName()),
+            String.format(Constant.FUNC_EXIT, getGenericName())));
+
+    private void tableMenu(String header, List<String> menuName) {
         int menuRollNo = 1;
         datatableString = new StringBuilder();
         //Tiêu đề menu
-        datatableString.append(Constant.MENU_TABLE_BOUND);
-        datatableString.append("|" + StringUtils.center(header, Constant.SIZE_MENU_FUNCTION) + Constant.END_ROW_DATA);
+        //datatableString.append(Constant.MENU_TABLE_BOUND);
+        datatableString.append(StringUtils.center(header, Constant.SIZE_MENU_FUNCTION) + Constant.NEW_LINE);
         datatableString.append(Constant.MENU_FUNCTION_BOUND);
 
         //Duyệt và in ra tên chức năng
@@ -36,11 +58,11 @@ public class BaseController<T> {
 
     protected void printDataTable(Collection<T> collectionInput, Class<T> clazz) throws IllegalAccessException, InstantiationException {
         datatableString = new StringBuilder();
-        T objectInstance = getClassNewInstanceEx(clazz);
+        object = getClassNewInstanceEx(clazz);
         String bound = Constant.DATATABLE_ID_BOUND;
 
         //Lấy ra danh sách các Attributes và danh sách AttributeName
-        List<Field> listField = new ArrayList<>(Arrays.asList(objectInstance.getClass().getDeclaredFields()));
+        List<Field> listField = new ArrayList<>(Arrays.asList(object.getClass().getDeclaredFields()));
         List<String> actualFieldNames = getFieldNames(listField);
         datatableString.append(Constant.NEW_LINE);
 
@@ -51,37 +73,37 @@ public class BaseController<T> {
         datatableString.append(bound + Constant.END_TABLE_LINE);
 
         //Tạo tiêu đề bảng
-        datatableString.append("|" + StringUtils.center(String.format(Constant.DATATABLE_HEADER, StringUtils.upperCase(objectInstance.getClass().getSimpleName()))
+        datatableString.append("|" + StringUtils.center(String.format(Constant.DATATABLE_HEADER, StringUtils.upperCase(object.getClass().getSimpleName()))
                 , bound.length() - 1) + Constant.END_ROW_DATA);
         datatableString.append(bound + Constant.END_TABLE_LINE);
 
         //Tạo dòng tiêu đề cho các Attributes
-        int count = 0;
+        int count = Constant.FIRST_ELEMENT;
         for (String fieldName : actualFieldNames) {
-            if (count++ == 0) {
-                datatableString.append("|" + StringUtils.center(StringUtils.upperCase(fieldName), Constant.SIZE_DATATABLE_ID));
+            if (count++ == Constant.FIRST_ELEMENT) {
+                appendStrCenter(StringUtils.upperCase(fieldName), Constant.SIZE_DATATABLE_ID);
             } else {
-                datatableString.append("|" + StringUtils.center(StringUtils.upperCase(fieldName), Constant.SIZE_DATATABLE_ROW));
+                appendStrCenter(StringUtils.upperCase(fieldName), Constant.SIZE_DATATABLE_ROW);
             }
         }
         datatableString.append(Constant.END_ROW_DATA + bound + Constant.END_TABLE_LINE);
 
-        int rowCount = 0;
+        int rowCount = Constant.FIRST_ELEMENT;
         //Kiểm tra đầu vào không null và có phần tử
         if (BaseCheckUltils.checkCollectionNotNull(collectionInput)) {
             //In dữ liệu các Attributes của từng phần tử trong collectionInput ra bảng
-            count = 0;
+            count = Constant.FIRST_ELEMENT;
             for (T obj : collectionInput) {
                 for (Field field : listField) {
                     field.setAccessible(true);
-                    if (count++ == 0) {
-                        datatableString.append("|" + StringUtils.center(Constant.SPACE + field.get(obj).toString(), Constant.SIZE_DATATABLE_ID));
+                    if (count++ == Constant.FIRST_ELEMENT) {
+                        appendStrCenter(field.get(obj), Constant.SIZE_DATATABLE_ID);
                     } else {
-                        datatableString.append("|" + StringUtils.rightPad(Constant.SPACE + field.get(obj).toString(), Constant.SIZE_DATATABLE_ROW));
+                        appendStrDatatable(field.get(obj), Constant.SIZE_DATATABLE_ROW);
                     }
                 }
                 //Phân biệt hết dữ liệu mỗi dòng
-                count = 0;
+                count = Constant.FIRST_ELEMENT;
                 datatableString.append(Constant.END_ROW_DATA);
                 datatableString.append(bound + Constant.END_TABLE_LINE);
                 //Đếm số phần tử trong Danh sách
@@ -111,6 +133,61 @@ public class BaseController<T> {
 
     private T getClassNewInstanceEx(Class<T> clazz) throws InstantiationException, IllegalAccessException {
         return clazz.newInstance();
+    }
+
+    private boolean checkNullField(Object obj) {
+        if (obj != null) {
+            return true;
+        }
+        return false;
+    }
+
+    private String objFieldData(Object obj) {
+        if (checkNullField(obj)) {
+            if (checkObjectTypeOfDate(obj)) {
+                return dateFormat.format(obj);
+            }
+            return obj.toString();
+        } else {
+            return Constant.SPACE;
+        }
+    }
+
+    private boolean checkObjectTypeOfDate(Object obj) {
+        if (obj instanceof Date) {
+            return true;
+        }
+        return false;
+    }
+
+    private void appendStrCenter(Object obj, int size) {
+        datatableString.append("|" + StringUtils.center(objFieldData(obj), size));
+    }
+
+    private void appendStrRight(Object obj, int size) {
+        datatableString.append("|" + StringUtils.rightPad(Constant.SPACE + objFieldData(obj), size));
+    }
+
+    private void appendStrLeft(Object obj, int size) {
+        datatableString.append("|" + StringUtils.leftPad(objFieldData(obj), size) + Constant.SPACE);
+    }
+
+    private void appendStrDatatable(Object obj, int size) {
+        if (checkObjectTypeOfDate(obj)) {
+            appendStrCenter(obj, size);
+        } else {
+            appendStrRight(obj, size);
+        }
+    }
+
+    protected void printMenuTable(String header, Class<T> clazz) {
+        tableMenu(header, listMenu);
+    }
+
+    protected void addMenuToListMenu(String... menuName) {
+        for (String menu : menuName) {
+            listMenu.add(4, menu);
+        }
     }
 
 }
