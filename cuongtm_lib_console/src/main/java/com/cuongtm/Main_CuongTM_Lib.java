@@ -15,7 +15,7 @@ public class Main_CuongTM_Lib extends BaseController<Customer> {
     }
 
     public void menu() throws InstantiationException, IllegalAccessException {
-        printMenuTable("header", Customer.class);
+        printMenuTable("header");
     }
 
 }
