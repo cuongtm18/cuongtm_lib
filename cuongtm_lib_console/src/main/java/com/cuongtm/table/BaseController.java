@@ -1,3 +1,4 @@
+
 package com.cuongtm.table;
 
 import com.cuongtm.utils.BaseCheckUltils;
@@ -14,20 +15,15 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * @author CuongTM
+ */
+
 public class BaseController<T> {
 
     private T object;
-
-    protected static StringBuilder datatableString = null;
+    private StringBuilder datatableString = null;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-
-    private String getGenericName() {
-        String name = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0].toString();
-        name = name.replace("class ", "");
-        int indexOfLastDot = name.lastIndexOf('.');
-        name = name.substring(indexOfLastDot + 1);
-        return name;
-    }
 
     private List<String> listMenu = new ArrayList<>(Arrays.asList(
             String.format(Constant.FUNC_INSERT, getGenericName()),
@@ -37,6 +33,32 @@ public class BaseController<T> {
             String.format(Constant.FUNC_SHOW, getGenericName()),
             String.format(Constant.FUNC_EXIT, getGenericName())));
 
+
+    /**
+     * @apiNote Hàm lấy tên class con
+     */
+    private String getGenericName() {
+        String name = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0].toString();
+        name = name.replace("class ", "");
+        int indexOfLastDot = name.lastIndexOf('.');
+        name = name.substring(indexOfLastDot + 1);
+        return name;
+    }
+
+    /**
+     * @param header : tiêu đề Menu
+     * @apiNote Hàm in Menu
+     */
+    protected void printMenuTable(String header) {
+        this.tableMenu(header, listMenu);
+    }
+
+
+    /**
+     * @param header   : tiêu đề Menu
+     * @param menuName : List tên Menu
+     * @apiNote Hàm tạo bảng Menu
+     */
     private void tableMenu(String header, List<String> menuName) {
         int menuRollNo = 1;
         datatableString = new StringBuilder();
@@ -56,6 +78,12 @@ public class BaseController<T> {
         PrintWithColor.printDataTable(datatableString.toString());
     }
 
+
+    /**
+     * @param collectionInput : Danh sách dữ liệu
+     * @param clazz           : Class type của danh sách dữ liệu
+     * @apiNote Hàm in bảng dữ liệu
+     */
     protected void printDataTable(Collection<T> collectionInput, Class<T> clazz) throws IllegalAccessException, InstantiationException {
         datatableString = new StringBuilder();
         object = getClassNewInstanceEx(clazz);
@@ -123,6 +151,10 @@ public class BaseController<T> {
         PrintWithColor.printDataTable(datatableString.toString());
     }
 
+    /**
+     * @param fields : Danh sách Attributes
+     * @apiNote Hàm lấy danh sách tên Attributes
+     */
     private List<String> getFieldNames(List<Field> fields) {
         List<String> fieldNames = new ArrayList<>();
         for (Field field : fields) {
@@ -131,10 +163,18 @@ public class BaseController<T> {
         return fieldNames;
     }
 
+    /**
+     * @param clazz : Danh sách Attributes
+     * @apiNote Hàm lấy new Instance của class con kế thừa
+     */
     private T getClassNewInstanceEx(Class<T> clazz) throws InstantiationException, IllegalAccessException {
         return clazz.newInstance();
     }
 
+    /**
+     * @param obj : Đối tượng cần check
+     * @apiNote Hàm boolean check đối tượng null hay không
+     */
     private boolean checkNullField(Object obj) {
         if (obj != null) {
             return true;
@@ -142,6 +182,10 @@ public class BaseController<T> {
         return false;
     }
 
+    /**
+     * @param obj : dữ liệu của attribute
+     * @apiNote Hàm lấy giá trị String của đối tượng
+     */
     private String objFieldData(Object obj) {
         if (checkNullField(obj)) {
             if (checkObjectTypeOfDate(obj)) {
@@ -153,6 +197,10 @@ public class BaseController<T> {
         }
     }
 
+    /**
+     * @param obj : dữ liệu của attribute
+     * @apiNote Hàm boolean kiểm tra đối tượng có thuộc type java.util.Date
+     */
     private boolean checkObjectTypeOfDate(Object obj) {
         if (obj instanceof Date) {
             return true;
@@ -180,10 +228,10 @@ public class BaseController<T> {
         }
     }
 
-    protected void printMenuTable(String header, Class<T> clazz) {
-        tableMenu(header, listMenu);
-    }
-
+    /**
+     * @param menuName : tên chức năng muốn thêm
+     * @apiNote Hàm thêm chức năng vào menu
+     */
     protected void addMenuToListMenu(String... menuName) {
         for (String menu : menuName) {
             listMenu.add(4, menu);
